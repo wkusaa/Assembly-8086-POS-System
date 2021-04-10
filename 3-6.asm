@@ -51,7 +51,7 @@
         LOG1 DB "Login $"
         LINETEXT DB ""
         REGYN DB ?
-        NL DB 0DH,0AH,"$" #bruh
+        NL DB 0DH,0AH,"$"
 .CODE
 MAIN PROC
         MOV AX,@DATA
