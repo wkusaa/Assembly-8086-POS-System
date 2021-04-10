@@ -1,7 +1,7 @@
 .MODEL SMALL
 .STACK 500
 .DATA
-        STRUSERNAME DB "USERNAME: $"
+        STRUSERNAME DB "USERNAME: $" ;hello
         STRPASSWORD DB "PASSWORD: $"
         USERNAME DB 'u','s','e','r','1'
         PASSWORD DB 'u','s','e','r','1'
