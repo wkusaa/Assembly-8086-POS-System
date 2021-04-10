@@ -7,11 +7,10 @@
         PASSWORD DB 'u','s','e','r','1'
         MM1 DB "1. Ordering $"
         PRD DB 5*35 DUP (0)
-        PRDN1 DB "Air Jordan 1 High Retro - RM 350$"
-        PRDN2 DB "Air Force 1 - RM 250$"
-        PRDN3 DB "Air Max 97 - RM 200$"
-        OPTION DB "OPTION: $"
-
+        PRDN1 DB "P1. Air Jordan 1 High Retro - RM 350$"
+        PRDN2 DB "P2. Air Force 1 - RM 250$"
+        PRDN3 DB "P3. Air Max 97 - RM 200$"
+        OPTION DB "OPTION(ENTER NUMBER ONLY): $"
         OPT DB ?
         COUNT DB 0
         PRICE DW 350,250,200
@@ -48,8 +47,6 @@
         REG1 DB "Register a new account?(y/n): $"
         REG2 DB "Confirm register?(y/n): $"
         REG3 DB "Account register succesfully!$"
-        LOG1 DB "Login $"
-        LINETEXT DB ""
         REGYN DB ?
         NL DB 0DH,0AH,"$"
 .CODE
@@ -317,6 +314,34 @@ ORDERING:
         MOV OPT,AL
         INT 21H
 
+        CMP OPT,'1'
+        JE PRD1
+
+        CMP OPT,'2'
+        JE PRD2
+
+        CMP OPT,'3'
+        JE PRD3
+
+        CMP OPT,'4'
+        JE PRD4
+
+PRD1:
+
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,STR3
+        INT 21H
+PRD2:
+
+PRD3:
+
+PRD4:
+        
 
 L1:
         MOV AH,09H
