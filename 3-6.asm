@@ -11,6 +11,7 @@
         PRDN2 DB "Air Force 1 - RM 250$"
         PRDN3 DB "Air Max 97 - RM 200$"
         OPTION DB "OPTION: $"
+
         OPT DB ?
         COUNT DB 0
         PRICE DW 350,250,200
