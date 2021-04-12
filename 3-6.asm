@@ -48,6 +48,11 @@
         REG2 DB "Confirm register?(y/n): $"
         REG3 DB "Account register succesfully!$"
         REGYN DB ?
+        
+        REGTEXT DB "REGISTER$"
+        
+        LINETEXT DB "==========================$"
+        LINETEXTNEW DB 0DH,0AH,"==========================$"
         NL DB 0DH,0AH,"$"
 .CODE
 MAIN PROC
@@ -55,6 +60,18 @@ MAIN PROC
         MOV DS,AX
 
 REGISTER:
+        MOV AH,09H
+        LEA DX,REGTEXT
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,LINETEXTNEW
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+        
         MOV AH,09H
         LEA DX,REG1
         INT 21H
