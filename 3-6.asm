@@ -7,19 +7,24 @@
         PASSWORD DB 'u','s','e','r','1'
         MM1 DB "1. Ordering $"
         PRD DB 5*35 DUP (0)
-        PRDN1 DB "P1. Air Jordan 1 High Retro - RM 350$"
-        PRDN2 DB "P2. Air Force 1 - RM 250$"
-        PRDN3 DB "P3. Air Max 97 - RM 200$"
+        PRDN1 DB "P1. Air Jordan 1 High Retro $"
+        PRDN2 DB "P2. Air Force 1 $"
+        PRDN3 DB "P3. Air Max 97 $"
+        PRDN4 DB 0
         OPTION DB "OPTION(ENTER NUMBER ONLY): $"
         OPT DB ?
         COUNT DB 0
-        PRICE DW 350,250,200
+        PRICE1 DB 350
+        PRICE2 DB 250
+        PRICE3 DB 200
+        PRICE4 DB ?
         STR DB "Product number: $"
         PDN DB ?
         STR2 DB "Quantity: "
         QTT DB ?
         SUBT DB ?
         STR3 DB "Order more?(Y/N): $"
+        MORE DB ?
         TOTAL DB ?
         MM2 DB "2. Summary $"
         MM3 DB "3. Product $"
@@ -282,6 +287,9 @@ ORDERING:
         LEA DX,NL
         INT 21H
 
+        CMP PRDN1,0
+        JE PD2
+
         MOV AH,09H
         LEA DX,PRDN1
         INT 21H
@@ -290,6 +298,7 @@ ORDERING:
         LEA DX,NL
         INT 21H
 
+PD2:
         MOV AH,09H
         LEA DX,PRDN2
         INT 21H
@@ -298,6 +307,9 @@ ORDERING:
         LEA DX,NL
         INT 21H
 
+        CMP PRDN2,0
+        JE PD3
+PD3:
         MOV AH,09H
         LEA DX,PRDN3
         INT 21H
@@ -306,6 +318,14 @@ ORDERING:
         LEA DX,NL
         INT 21H
         
+        MOV AH,09H
+        LEA DX,PRDN4
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
         MOV AH,09H
         LEA DX,OPTION
         INT 21H
@@ -328,13 +348,28 @@ ORDERING:
 
 PRD1:
 
+        MOV AH,09H
+        LEA DX,STR2
+        INT 21H
 
+        MOV AH,01H
+        MOV QTT,AL
+        INT 21H
+
+        MOV AL,PRICE1
+        MUL QTT
+        MOV SUBTOTAL,AL
+        
         MOV AH,09H
         LEA DX,NL
         INT 21H
 
         MOV AH,09H
         LEA DX,STR3
+        INT 21H
+
+        MOV AH,01H
+        MOV MORE,AL
         INT 21H
 PRD2:
 
