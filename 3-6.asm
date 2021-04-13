@@ -1,5 +1,5 @@
 .MODEL SMALL
-.STACK 500
+.STACK 1000
 .DATA
         STRUSERNAME DB "USERNAME: $" ;hello
         STRPASSWORD DB "PASSWORD: $"
@@ -7,26 +7,34 @@
         PASSWORD DB 'u','s','e','r','1'
         MM1 DB "1. Ordering $"
         PRD DB 5*35 DUP (0)
-        ; PRDARRAY DW "AIR JORDAN", "AIR FORCE", "AIR MAX" doesn't work lmao
-        PRDN1 DB "P1. Air Jordan 1 High Retro - RM 350$"
-        PRDN2 DB "P2. Air Force 1 - RM 250$"
-        PRDN3 DB "P3. Air Max 97 - RM 200$"
-        OPTION DB "OPTION(ENTER NUMBER ONLY): $"
-        OPT DB ?
+        PRDN1 DB "P1. Air Jordan 1 High Retro $"
+        PRDN2 DB "P2. Air Force 1 $"
+        PRDN3 DB "P3. Air Max 97 $"
+        PRDN4 DB 0
+        OPT DB ? ;OPTION
         COUNT DB 0
-        PRICE DW 350,250,200
-        STR1 DB "Product number: $"
+        PRICE1 DB 250
+        PRICE2 DB 200
+        PRICE3 DB 100
+        PRICE4 DB ?
+        STRP DB "Product number(ENTER NUMBER ONLY): $"
         PDN DB ?
         STR2 DB "Quantity: "
-        QTT DB ?
-        SUBT DB ?
-        STR3 DB "Order more?(Y/N): $"
-        TOTAL DB ?
+        QTT DB ? ;QUANTITY
+        SUBTOTAL DW ?
+        STR3 DB "Order more?(y/n): $"
+        MORE DB ?
+        TOTAL DW ?
+        MEMBERSTR DB "Member?(y/n)"
+        MEMBER DB ?
+        OGPRICE DW ? ;ORIGINAL PRICE
+        DISCOUNT DB 0
+        SALES DB ? ;TOTAL SALES
         MM2 DB "2. Summary $"
         MM3 DB "3. Product $"
         MM4 DB "4. Exit $"
         STR4 DB "Selection: $"
-        SEL DB ?
+        SEL DB ? ;SELECTION
         STRUSER LABEL BYTE
         MAXN1 DB 30
         ACTN1 DB ?
@@ -51,23 +59,19 @@
         REGYN DB ?
         
         REGTEXT DB "REGISTER$"
-        
+        LOGTEXT DB "LOGIN$"
         LINETEXT DB "==========================$"
         LINETEXTNEW DB 0DH,0AH,"==========================$"
         NL DB 0DH,0AH,"$"
+        TEN DB 10
+        HUNDRED DB 100
+        FIVEHUND DW 500
 .CODE
 MAIN PROC
         MOV AX,@DATA
         MOV DS,AX
 
 REGISTER:
-        MOV AH,09H
-        LEA DX,REGTEXT
-        INT 21H
-
-        MOV AH,09H
-        LEA DX,LINETEXTNEW
-        INT 21H
 
         MOV AH,09H
         LEA DX,NL
@@ -84,8 +88,20 @@ REGISTER:
         LEA DX,NL
         INT 21H
 
-        CMP AL,'n'
-        JE LOGIN
+        CMP AL,'y'
+        JNE LOGIN
+
+        MOV AH,09H
+        LEA DX,REGTEXT
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,LINETEXTNEW
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
 
         MOV AH,09H
         LEA DX,STRUSERNAME
@@ -122,9 +138,9 @@ REGISTER:
         LEA DX,NL
         INT 21H
 
-        CMP AL,'n'
+        CMP AL,'y'
         MOV REGYN,AL
-        JE REGISTER
+        JNE REGISTER
 
         MOV AH,09H
         LEA DX,REG3
@@ -134,6 +150,18 @@ REGISTER:
         LEA DX,NL
         INT 21H
 LOGIN:
+        MOV AH,09H
+        LEA DX,LOGTEXT
+        INT 21H
+        
+        MOV AH,09H
+        LEA DX,LINETEXTNEW
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
         ;username
         MOV AH,09H
         LEA DX,STRUSERNAME
@@ -183,7 +211,7 @@ LOGIN:
         CHECKPASS:
                   MOV AL,PASSWORD[SI]
                   CMP INPUTPASS[SI],AL
-                  JNE USER2
+                  JNE ERROR2
 
                   INC SI
         LOOP CHECKPASS
@@ -287,18 +315,27 @@ MAINMENU:
         JE ORDERING
 
         CMP SEL,'2'
-        JE SUMMARY
+        JE SUMMARY1
 
         CMP SEL,'3'
-        JE PRODUCT  
+        JE PRODUCT1
 
         CMP SEL,'4'
-        JE EXIT      
+        JE EXIT1
+SUMMARY1:
+        JMP SUMMARY
+PRODUCT1:
+        JMP PRODUCT
+EXIT1:
+        JMP EXIT
 
 ORDERING:
         MOV AH,09H
         LEA DX,NL
         INT 21H
+
+        CMP PRDN1,0
+        JE PD2
 
         MOV AH,09H
         LEA DX,PRDN1
@@ -308,6 +345,7 @@ ORDERING:
         LEA DX,NL
         INT 21H
 
+PD2:
         MOV AH,09H
         LEA DX,PRDN2
         INT 21H
@@ -316,6 +354,9 @@ ORDERING:
         LEA DX,NL
         INT 21H
 
+        CMP PRDN2,0
+        JE PD3
+PD3:
         MOV AH,09H
         LEA DX,PRDN3
         INT 21H
@@ -323,9 +364,19 @@ ORDERING:
         MOV AH,09H
         LEA DX,NL
         INT 21H
-        
+PD4:
+        CMP PRDN4,'0'
+        JE OPTION1
         MOV AH,09H
-        LEA DX,OPTION
+        LEA DX,PRDN4
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+OPTION1:
+        MOV AH,09H
+        LEA DX,STRP
         INT 21H
 
         MOV AH,01H
@@ -336,17 +387,43 @@ ORDERING:
         JE PRD1
 
         CMP OPT,'2'
-        JE PRD2
+        JE PROD2
 
         CMP OPT,'3'
-        JE PRD3
+        JE PROD3
 
         CMP OPT,'4'
-        JE PRD4
-
+        JE PROD4
+ORDERING1:
+        JMP ORDERING
+PROD2:
+        CMP PRDN2,'0'
+        JE ORDERING1
+        JMP PRD2
+PROD3:
+        CMP PRDN3,'0'
+        JE ORDERING1
+        JMP PRD3
+PROD4:
+        CMP PRDN4,'0'
+        JE ORDERING1
+        JMP PRD4
 PRD1:
+        CMP PRDN1,'0'
+        JE ORDERING1
+        MOV AH,09H
+        LEA DX,STR2
+        INT 21H
 
+        MOV AH,01H
+        MOV QTT,AL
+        INT 21H
 
+        MOV AH,0
+        MOV AL,PRICE1
+        MUL QTT
+        MOV SUBTOTAL,AX
+        
         MOV AH,09H
         LEA DX,NL
         INT 21H
@@ -354,17 +431,75 @@ PRD1:
         MOV AH,09H
         LEA DX,STR3
         INT 21H
+
+        MOV AH,01H
+        MOV MORE,AL
+        INT 21H
+
+        CMP MORE,'y'
+        JE ORDERING2
+ORDERING2:
+        JMP ORDERING
+
+        MOV AX,SUBTOTAL
+        MOV TOTAL,AX
+        MOV BX,TOTAL
+        MOV OGPRICE,BX
+        MOV SUBTOTAL,0
+        
+        MOV AH,09H
+        LEA DX,MEMBERSTR
+        INT 21H
+
+        MOV AH,01H
+        MOV MEMBER,AL
+        INT 21H
+
+        CMP MEMBER,'y'
+        JE MEMBER1
+
+        MOV BX,TOTAL
+        CMP BX,FIVEHUND
+        JL LESSTHAN500
+
+
+        MOV AL,95
+        MUL TOTAL
+        DIV HUNDRED
+
+CALCULATE1:
+
+        JMP MAINMENU
 PRD2:
 
 PRD3:
 
 PRD4:
         
+MEMBER1:
+        CMP TOTAL,500
+        JL LESSTHAN500M
 
-L1:
-        MOV AH,09H
-        LEA DX,STR1
-        INT 21H
+        MOV AL,92
+        MUL TOTAL
+        DIV HUNDRED
+        JMP CALCULATE1
+LESSTHAN500:
+        CMP TOTAL,300
+        JL CALCULATE1
+
+        MOV AL,95
+        MUL TOTAL
+        DIV HUNDRED
+        JMP CALCULATE1
+LESSTHAN500M:
+        CMP TOTAL,300
+        JL CALCULATE1
+
+        MOV AL,95
+        MUL TOTAL
+        DIV HUNDRED
+        JMP CALCULATE1
         
 SUMMARY:
 
