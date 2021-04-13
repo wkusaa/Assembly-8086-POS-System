@@ -59,7 +59,7 @@
         REGYN DB ?
         
         REGTEXT DB "REGISTER$"
-        
+        LOGTEXT DB "LOGIN$"
         LINETEXT DB "==========================$"
         LINETEXTNEW DB 0DH,0AH,"==========================$"
         NL DB 0DH,0AH,"$"
@@ -72,13 +72,6 @@ MAIN PROC
         MOV DS,AX
 
 REGISTER:
-        MOV AH,09H
-        LEA DX,REGTEXT
-        INT 21H
-
-        MOV AH,09H
-        LEA DX,LINETEXTNEW
-        INT 21H
 
         MOV AH,09H
         LEA DX,NL
@@ -95,8 +88,20 @@ REGISTER:
         LEA DX,NL
         INT 21H
 
-        CMP AL,'n'
-        JE LOGIN
+        CMP AL,'y'
+        JNE LOGIN
+
+        MOV AH,09H
+        LEA DX,REGTEXT
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,LINETEXTNEW
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
 
         MOV AH,09H
         LEA DX,STRUSERNAME
@@ -133,9 +138,9 @@ REGISTER:
         LEA DX,NL
         INT 21H
 
-        CMP AL,'n'
+        CMP AL,'y'
         MOV REGYN,AL
-        JE REGISTER
+        JNE REGISTER
 
         MOV AH,09H
         LEA DX,REG3
@@ -145,6 +150,18 @@ REGISTER:
         LEA DX,NL
         INT 21H
 LOGIN:
+        MOV AH,09H
+        LEA DX,LOGTEXT
+        INT 21H
+        
+        MOV AH,09H
+        LEA DX,LINETEXTNEW
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
         ;username
         MOV AH,09H
         LEA DX,STRUSERNAME
@@ -194,7 +211,7 @@ LOGIN:
         CHECKPASS:
                   MOV AL,PASSWORD[SI]
                   CMP INPUTPASS[SI],AL
-                  JNE USER2
+                  JNE ERROR2
 
                   INC SI
         LOOP CHECKPASS
@@ -347,7 +364,9 @@ PD3:
         MOV AH,09H
         LEA DX,NL
         INT 21H
-        
+PD4:
+        CMP PRDN4,'0'
+        JE OPTION1
         MOV AH,09H
         LEA DX,PRDN4
         INT 21H
@@ -355,7 +374,7 @@ PD3:
         MOV AH,09H
         LEA DX,NL
         INT 21H
-
+OPTION1:
         MOV AH,09H
         LEA DX,STRP
         INT 21H
