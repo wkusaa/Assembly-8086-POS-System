@@ -7,6 +7,7 @@
         PASSWORD DB 'u','s','e','r','1'
         MM1 DB "1. Ordering $"
         PRD DB 5*35 DUP (0)
+        ; PRDARRAY DW "AIR JORDAN", "AIR FORCE", "AIR MAX" doesn't work lmao
         PRDN1 DB "P1. Air Jordan 1 High Retro - RM 350$"
         PRDN2 DB "P2. Air Force 1 - RM 250$"
         PRDN3 DB "P3. Air Max 97 - RM 200$"
@@ -14,7 +15,7 @@
         OPT DB ?
         COUNT DB 0
         PRICE DW 350,250,200
-        STR DB "Product number: $"
+        STR1 DB "Product number: $"
         PDN DB ?
         STR2 DB "Quantity: "
         QTT DB ?
@@ -362,7 +363,7 @@ PRD4:
 
 L1:
         MOV AH,09H
-        LEA DX,STR
+        LEA DX,STR1
         INT 21H
         
 SUMMARY:
