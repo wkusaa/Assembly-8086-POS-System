@@ -1,5 +1,5 @@
 .MODEL SMALL
-.STACK 1000
+.STACK 100
 .DATA
         STRUSERNAME DB "USERNAME: $" ;hello
         STRPASSWORD DB "PASSWORD: $"
@@ -481,8 +481,8 @@ CALCULATE:
         CMP MEMBER,'y'
         JE MEMBER1
 
-        MOV BX,TOTAL
-        CMP BX,FIVEHUND
+        MOV AX,TOTAL
+        CMP AX,FIVEHUND
         JL LESSTHAN500
 
         MOV AX,95
@@ -490,7 +490,16 @@ CALCULATE:
         DIV HUNDRED
 
 CALCULATE1:
+        MOV BX,AX
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
 
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
 
         MOV AH,09H
         LEA DX,NL
