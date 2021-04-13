@@ -24,7 +24,7 @@
         SUBTOTAL DW ?
         STR3 DB "Order more?(y/n): $"
         MORE DB ?
-        TOTAL DW ?
+        TOTAL DW 0
         MEMBERSTR DB "Member?(y/n): $"
         MEMBER DB ?
         OGPRICE DW ? ;ORIGINAL PRICE
@@ -57,7 +57,9 @@
         REG2 DB "Confirm register?(y/n): $"
         REG3 DB "Account register succesfully!$"
         REGYN DB ?
-
+        STRTOTAL DB "Total Amount: $"
+        STRDISCOUNT DB "Total Discount: $" 
+        STRSUBTOTAL DB "Subtotal: $"
         REGTEXT DB "REGISTER$"
         LOGTEXT DB "LOGIN$"
         LINETEXT DB "==========================$"
@@ -458,7 +460,7 @@ ORDERING2:
         JMP ORDERING
 CALCULATE:
         MOV AX,SUBTOTAL
-        MOV TOTAL,AX
+        ADD TOTAL,AX
         MOV BX,TOTAL
         MOV OGPRICE,BX
         MOV SUBTOTAL,0
@@ -492,6 +494,8 @@ CALCULATE:
 
 CALCULATE1:
         MOV BX,AX
+        
+
         MOV AH,02H
         MOV DL,BL
         ADD DL,30H
