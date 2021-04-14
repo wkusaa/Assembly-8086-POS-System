@@ -1,6 +1,21 @@
 .MODEL SMALL
 .STACK 100
 .DATA
+        ; MAIN SCREEN
+	LOGO			DB "                 _____ ______   ___  ___  __    _______         ", 13, 10
+                                DB "                |\   _ \  _   \|\  \|\  \|\  \ |\  ___ \        ", 13, 10
+                                DB "                \ \  \\\__\ \  \ \  \ \  \/  /|\ \   __/|       ", 13, 10
+                                DB "                  \ \  \    \ \  \ \  \ \  \\ \  \ \  \_|\ \    ", 13, 10
+                                DB "                   \ \__\    \ \__\ \__\ \__\\ \__\ \_______\   ", 13, 10
+                                DB "                    \|__|     \|__|\|__|\|__| \|__|\|_______|   TM", 13, 10 , '$'
+    
+	STRSEPARATOR	DB "================================================================================", 13, 10, "$"
+
+	STRWELCOME		DB "                        WELCOME TO MIKE POINT OF SALES SYSTEM", 13, 10, "$"
+	STRWELCOMELEN   DW 61
+	STRWELCOMECOLOR DB 0BH
+
+
         STRUSERNAME DB "USERNAME: $" ;hello
         STRPASSWORD DB "PASSWORD: $"
         USERNAME DB 'u','s','e','r','1'
@@ -72,6 +87,9 @@
 MAIN PROC
         MOV AX,@DATA
         MOV DS,AX
+        
+        CALL CLEARSCREEN
+        CALL DISPLAYLOGO
 
 REGISTER:
 
@@ -272,7 +290,7 @@ ERROR2:
 
 MAINMENU:
         ;mainmenu list
-        CALL CLEAR_SCREEN
+        CALL CLEARSCREEN
 
         MOV AH,09H
         LEA DX,MM1
@@ -555,19 +573,53 @@ EXIT:
         INT 21H
 MAIN ENDP
 
-CLEAR_SCREEN PROC
+DISPLAYLOGO PROC
+	MOV AH, 09H
+	LEA DX, LOGO
+	INT 21H
+	
+	LEA DX, STRSEPARATOR
+	INT 21H
+	
+	; Change color
+	MOV AH, 09H
+	MOV BH, 0
+	MOV BL, STRWELCOMECOLOR
+	MOV CX, STRWELCOMELEN
+	INT 10H
+
+        LEA DX, STRWELCOME
+        INT 21H
     
-    MOV AH,00H    ;06 TO SCROLL & 00 FOR FULLJ SCREEN
-    MOV AL,03H
-    MOV BH,07    ;ATTRIBUTE 7 FOR BACKGROUND AND 1 FOR FOREGROUND
-    MOV CX,0000H    ;STARTING COORDINATES
-    MOV DX,184FH    ;ENDING COORDINATES
-    INT 10H        ;FOR VIDEO DISPLAY
+        LEA DX, STRSEPARATOR
+        INT 21H
     
-    RET  
+        CALL NEWLINE
+	
+	RET
+
+DISPLAYLOGO ENDP
+
+CLEARSCREEN PROC
     
-    
-CLEAR_SCREEN ENDP   ;hello
+        MOV AH,00H    ;06 TO SCROLL & 00 FOR FULLJ SCREEN
+        MOV AL,03H
+        MOV BH,07    ;ATTRIBUTE 7 FOR BACKGROUND AND 1 FOR FOREGROUND
+        MOV CX,0000H    ;STARTING COORDINATES
+        MOV DX,184FH    ;ENDING COORDINATES
+        INT 10H        ;FOR VIDEO DISPLAY
+        
+        RET  
+CLEARSCREEN ENDP
+
+NEWLINE PROC
+	MOV AH, 02H
+	MOV DL, 0DH		; CR
+	INT 21H
+	MOV DL, 0AH		; LF
+	INT 21H
+	RET
+NEWLINE ENDP
 
 
 END MAIN
