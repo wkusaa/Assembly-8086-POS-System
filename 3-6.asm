@@ -68,6 +68,10 @@
         MAXN4 DB 30
         ACTN4 DB ?
         INPUTREG2 DB 30 DUP("$")
+        STRPROD4 LABEL BYTE
+        MAXN5 DB 30
+        ACTN5 DB ?
+        INPUPROD4 DB 30 DUP("$")
         ERRORMSG DB "Invalid Password!$"
         ERRORMSG1 DB "Invalid Username!$"
         REG1 DB "Register a new account?(y/n): $"
@@ -77,6 +81,7 @@
         STRTOTAL DB "Total Amount (Price included 6% service tax): $"
         STRDISCOUNT DB "Total Discount: $" 
         STRSUBTOTAL DB "Subtotal: $"
+        STRCONFORDER DB "Confirm Order?(y/n): $"
 
         SUMMARYTOTALSALES DB "Total Sales for this session : $"
 
@@ -563,24 +568,15 @@ CALCULATE:
         INT 21H
 
         CMP MEMBER,'y';MEMBER?
-        JE MEMBER2
+        JNE CALCULATE1
 
-        MOV AX,TOTAL
-        CMP AX,FIVEHUND
-        JL LESSTHAN500N
-
-        MOV DISCOUNT,'5'
-        MOV AX,95
+        MOV DISCOUNT,10
+        MOV AX,90
         MUL TOTAL
         DIV HUNDRED
         MUL TAX
         DIV HUNDRED
-        JMP CALCULATE1
 
-MEMBER2:
-        JMP MEMBER1
-LESSTHAN500N:
-        JMP LESSTHAN500
 CALCULATE1:
         MOV AH,09H
         LEA DX,NL
@@ -592,6 +588,7 @@ CALCULATE1:
 
         MOV AH,02H
         MOV DL,DISCOUNT
+        ADD DL,30H
         INT 21H
 
         MOV AH,09H
@@ -611,11 +608,30 @@ CALCULATE1:
         INT 21H
 
         MOV AH,09H
+        LEA DX,STRCONFORDER
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+        CMP AL,'y'
+        JNE ORDERING3
+
+        INC COUNT
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H
         LEA DX,STR5
         INT 21H
 
         MOV AH,01H
         MOV NEXTORDER,AL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
         INT 21H
 
         CMP NEXTORDER,'y'
@@ -637,41 +653,6 @@ PRD3:
 
 PRD4:
 
-MEMBER1:
-        CMP TOTAL,500
-        JL LESSTHAN500M
-
-        MOV DISCOUNT,'8'
-        MOV AX,92
-        MUL TOTAL
-        DIV HUNDRED
-        MUL TAX
-        DIV HUNDRED
-        JMP CALCULATE1
-LESSTHAN500:
-        CMP TOTAL,300
-        JL CALCULATE2
-
-        MOV DISCOUNT,'3'
-        MOV AX,97
-        MUL TOTAL
-        DIV HUNDRED
-        MUL TAX
-        DIV HUNDRED
-        JMP CALCULATE1
-LESSTHAN500M:
-        CMP TOTAL,300
-        JL CALCULATE2
-
-        MOV DISCOUNT,'5'
-        MOV AX,95
-        MUL TOTAL
-        DIV HUNDRED
-        MUL TAX
-        DIV HUNDRED
-        JMP CALCULATE1
-CALCULATE2:
-        JMP CALCULATE1
 SUMMARY:
         CALL CLEARSCREEN
 
