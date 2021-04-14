@@ -684,7 +684,10 @@ SUMMARY:
         INT 21H
 
         CALL NEWLINE
-        
+
+        MOV AH,09H
+        LEA DX,SUMMARYTOTALSALES
+        INT 21H
 
 
 
