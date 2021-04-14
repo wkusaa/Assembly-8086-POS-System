@@ -34,11 +34,13 @@
         PRICE4 DB ?
         STRP DB "Product number(ENTER NUMBER ONLY): $"
         PDN DB ?
-        STR2 DB "Quantity: $"
-        QTT DB ? ;QUANTITY
+        STR2 DB "Quantity: $";only for manager account
+        QTT DB 1 ;QUANTITY
         SUBTOTAL DW ?
         STR3 DB "Order more?(y/n): $"
+        STR5 DB "Next Order?(y/n): $"
         MORE DB ?
+        NEXTORDER DB ?
         TOTAL DW 0
         MEMBERSTR DB "Member?(y/n): $"
         MEMBER DB ?
@@ -72,7 +74,7 @@
         REG2 DB "Confirm register?(y/n): $"
         REG3 DB "Account register succesfully!$"
         REGYN DB ?
-        STRTOTAL DB "Total Amount: $"
+        STRTOTAL DB "Total Amount (Price included 6% service tax): $"
         STRDISCOUNT DB "Total Discount: $" 
         STRSUBTOTAL DB "Subtotal: $"
         REGTEXT DB "REGISTER$"
@@ -83,6 +85,13 @@
         TEN DB 10
         HUNDRED DB 100
         FIVEHUND DW 500
+        REMAINDER DB ?
+        DECIMAL DB ?
+        DOT DB "."
+        ANS DB ?
+        RM DB "RM $"
+        PERCENT DB "%$"
+        TAX DB 106
 .CODE
 MAIN PROC
         MOV AX,@DATA
@@ -399,7 +408,6 @@ PD4:
 
 OPTION1:
 
-
         MOV AH,09H
         LEA DX,NL
         INT 21H
@@ -445,6 +453,19 @@ PRD1:
         LEA DX,NL
         INT 21H
         
+        CMP ACTN1,5
+        JNE ADMIN
+        MOV CH,0
+        MOV CL,ACTN1
+        MOV SI,0
+        CHECKUSER2:
+                  MOV AL,USERNAME[SI]
+                  CMP INPUTUSER[SI],AL
+                  JNE ADMIN
+
+                  INC SI
+        LOOP CHECKUSER2
+
         MOV AH,09H
         LEA DX,STR2
         INT 21H
@@ -454,6 +475,7 @@ PRD1:
         SUB AL,30H
         MOV QTT,AL
 
+ADMIN:
         MOV AH,0
         MOV AL,PRICE1
         MUL QTT
@@ -477,42 +499,41 @@ PRD1:
 ORDERING2:
         JMP ORDERING
 CALCULATE:
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY SUBTOTAL
+        LEA DX,STRSUBTOTAL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,RM
+        INT 21H
+
         MOV AX,SUBTOTAL
-        ADD TOTAL,AX
-        MOV BX,TOTAL
-        MOV OGPRICE,BX
-        MOV SUBTOTAL,0
-        
-        MOV AH,09H
-        LEA DX,NL
-        INT 21H
+        MOV TOTAL,AX
 
-        MOV AH,09H
-        LEA DX,MEMBERSTR
-        INT 21H
-
-        MOV AH,01H
-        MOV MEMBER,AL
-        INT 21H
-
-        MOV AH,09H
-        LEA DX,NL
-        INT 21H
-
-        CMP MEMBER,'y'
-        JE MEMBER1
-
-        MOV AX,TOTAL
-        CMP AX,FIVEHUND
-        JL LESSTHAN500
-
-        MOV AX,95
-        MUL TOTAL
         DIV HUNDRED
-
-CALCULATE1:
+        MOV REMAINDER,AH
+        MOV AH,0
+        DIV TEN
         MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
         
+        MOV AH,0
+        MOV AL,REMAINDER
+        DIV TEN
+        MOV BX,AX
 
         MOV AH,02H
         MOV DL,BL
@@ -528,38 +549,124 @@ CALCULATE1:
         LEA DX,NL
         INT 21H
 
+        MOV AH,09H
+        LEA DX,MEMBERSTR
+        INT 21H
+
+        MOV AH,01H
+        MOV MEMBER,AL
+        INT 21H
+
+        CMP MEMBER,'y';MEMBER?
+        JE MEMBER2
+
+        MOV AX,TOTAL
+        CMP AX,FIVEHUND
+        JL LESSTHAN500N
+
+        MOV DISCOUNT,'5'
+        MOV AX,95
+        MUL TOTAL
+        DIV HUNDRED
+        MUL TAX
+        DIV HUNDRED
+        JMP CALCULATE1
+
+MEMBER2:
+        JMP MEMBER1
+LESSTHAN500N:
+        JMP LESSTHAN500
+CALCULATE1:
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY DISCOUNT
+        LEA DX,STRDISCOUNT
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,DISCOUNT
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,PERCENT
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY TOTAL
+        LEA DX,STRTOTAL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,RM
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,STR5
+        INT 21H
+
+        MOV AH,01H
+        MOV NEXTORDER,AL
+        INT 21H
+
+        CMP NEXTORDER,'y'
+        JE ORDERING3
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV DISCOUNT,0
+        MOV SUBTOTAL,0
         JMP MAINMENU
+ORDERING3:
+        MOV SUBTOTAL,0
+        MOV DISCOUNT,0
+        JMP ORDERING
 PRD2:
 
 PRD3:
 
 PRD4:
-        
+
 MEMBER1:
         CMP TOTAL,500
         JL LESSTHAN500M
 
+        MOV DISCOUNT,'8'
         MOV AX,92
         MUL TOTAL
+        DIV HUNDRED
+        MUL TAX
         DIV HUNDRED
         JMP CALCULATE1
 LESSTHAN500:
         CMP TOTAL,300
-        JL CALCULATE1
+        JL CALCULATE2
 
-        MOV AX,95
+        MOV DISCOUNT,'3'
+        MOV AX,97
         MUL TOTAL
+        DIV HUNDRED
+        MUL TAX
         DIV HUNDRED
         JMP CALCULATE1
 LESSTHAN500M:
         CMP TOTAL,300
-        JL CALCULATE1
+        JL CALCULATE2
 
+        MOV DISCOUNT,'5'
         MOV AX,95
         MUL TOTAL
         DIV HUNDRED
+        MUL TAX
+        DIV HUNDRED
         JMP CALCULATE1
-        
+CALCULATE2:
+        JMP CALCULATE1
 SUMMARY:
 
 
