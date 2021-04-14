@@ -12,7 +12,7 @@
 	STRSEPARATOR	DB "================================================================================", 13, 10, "$"
 
 	STRWELCOME		DB "                        WELCOME TO MIKE POINT OF SALES SYSTEM", 13, 10, "$"
-	STRWELCOMELEN   DW 61
+	STRWELCOMELEN   DW 61 ;i used character counter to count the word above
 	STRWELCOMECOLOR DB 0BH
 
 
@@ -82,8 +82,13 @@
         STRDISCOUNT DB "Total Discount: $" 
         STRSUBTOTAL DB "Subtotal: $"
         STRCONFORDER DB "Confirm Order?(y/n): $"
+
+        SUMMARYTOTALSALES DB "Total Sales for this session : $"
+
+
         REGTEXT DB "REGISTER$"
         LOGTEXT DB "LOGIN$"
+        SUMMARYTEXT DB "SUMMARY$"
         LINETEXT DB "==========================$"
         LINETEXTNEW DB 0DH,0AH,"==========================$"
         NL DB 0DH,0AH,"$"
@@ -649,6 +654,20 @@ PRD3:
 PRD4:
 
 SUMMARY:
+        CALL CLEARSCREEN
+
+        MOV AH,09H
+        LEA DX,SUMMARYTEXT
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,LINETEXTNEW
+        INT 21H
+
+        CALL NEWLINE
+        
+
+
 
 
 PRODUCT:
@@ -673,7 +692,7 @@ DISPLAYLOGO PROC
 	MOV AH, 09H
 	MOV BH, 0
 	MOV BL, STRWELCOMECOLOR
-	MOV CX, STRWELCOMELEN
+	MOV CX, STRWELCOMELEN ;based on str length 
 	INT 10H
 
         LEA DX, STRWELCOME
@@ -701,11 +720,9 @@ CLEARSCREEN PROC
 CLEARSCREEN ENDP
 
 NEWLINE PROC
-	MOV AH, 02H
-	MOV DL, 0DH		; CR
-	INT 21H
-	MOV DL, 0AH		; LF
-	INT 21H
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
 	RET
 NEWLINE ENDP
 
