@@ -12,7 +12,7 @@
 	STRSEPARATOR	DB "================================================================================", 13, 10, "$"
 
 	STRWELCOME		DB "                        WELCOME TO MIKE POINT OF SALES SYSTEM", 13, 10, "$"
-	STRWELCOMELEN   DW 61
+	STRWELCOMELEN   DW 61 ;i used character counter to count the word above
 	STRWELCOMECOLOR DB 0BH
 
 
@@ -77,6 +77,7 @@
         STRSUBTOTAL DB "Subtotal: $"
         REGTEXT DB "REGISTER$"
         LOGTEXT DB "LOGIN$"
+        SUMMARYTEXT DB "SUMMARY$"
         LINETEXT DB "==========================$"
         LINETEXTNEW DB 0DH,0AH,"==========================$"
         NL DB 0DH,0AH,"$"
