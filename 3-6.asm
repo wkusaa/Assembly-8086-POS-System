@@ -83,12 +83,22 @@
         STRSUBTOTAL DB "Subtotal: $"
         STRCONFORDER DB "Confirm Order?(y/n): $"
 
-        SUMMARYTOTALSALES DB "Total Sales for this session : $"
+        SUMMARYTOTALTRANSACMADE DB "Total transaction made for this session : $"
+        SUMMARYTOTALSALES DB "Total sales for this session : $"
 
+        PRODUCTNAMETEXT DB "Enter Product Name",0DH,0AH,"(P4: [PRODUCTNAME]): $"
+        ENTERPRODPRICETEXT DB "Enter Product Price",0DH,0AH,"(MAX 3 DIGIT AND ROUND OF THE CENTS TO RINGGIT): RM $"
+        
+        NEWPRODNAME DB "New Product Name : $"
+        NEWPRODPRICE DB "New Product Price : RM $"
+
+        INPUTVALUE DB 0
+        INPUTTOTAL DB 0
 
         REGTEXT DB "REGISTER$"
         LOGTEXT DB "LOGIN$"
         SUMMARYTEXT DB "SUMMARY$"
+        PRODUCTTEXT DB "PRODUCT$"
         LINETEXT DB "==========================$"
         LINETEXTNEW DB 0DH,0AH,"==========================$"
         NL DB 0DH,0AH,"$"
@@ -713,17 +723,163 @@ SUMMARY:
         CALL NEWLINE
 
         MOV AH,09H
+        LEA DX,SUMMARYTOTALTRANSACMADE
+        INT 21H
+
+        MOV AH,0
+        MOV AL,COUNT ;display total order made
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+        
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+        
+        CALL NEWLINE
+
+        MOV AH,09H
         LEA DX,SUMMARYTOTALSALES
         INT 21H
 
+        MOV AH,0
+        MOV AL,COUNT ;display total order made
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
         
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+        
+        CALL NEWLINE
+
 
 
 
 PRODUCT:
+        CALL CLEARSCREEN
 
+        MOV AH,09H
+        LEA DX,PRODUCTTEXT
+        INT 21H
 
+        MOV AH,09H
+        LEA DX,LINETEXTNEW
+        INT 21H
 
+        CALL NEWLINE
+
+        ;Enter product name
+        MOV AH,09H
+        LEA DX,PRODUCTNAMETEXT
+        INT 21H
+
+        MOV AH,0AH
+        LEA DX,STRPROD4
+        INT 21h
+        
+        CALL NEWLINE
+
+;MOVE THE STRING TO ANOTHER STRING
+        LEA DI, PRDN4 	; Starting address of Destination
+	LEA SI, INPUPROD4		; Starting address of Source
+	MOV CX, 30		; Number of elements = 30
+	PUSH DS
+	POP ES			; make ES=DS
+	CLD			; set SI and DI to auto-increment	
+MOVESTR:	
+        MOVSB
+	LOOP MOVESTR
+
+;ENTER PRICE
+        MOV AH,09H
+        LEA DX,ENTERPRODPRICETEXT
+        INT 21H
+
+        READ:
+        MOV AH,01H
+        INT 21H
+        
+        CMP AL, 13
+        JE ENDOFNUMBER
+        
+        MOV INPUTVALUE, AL
+        SUB INPUTVALUE, 48
+        
+        MOV AL, INPUTTOTAL
+        MOV BL, 10
+        MUL BL
+        
+        ADD AL, INPUTVALUE
+        
+        MOV INPUTTOTAL, AL
+        
+        JMP READ
+
+        ENDOFNUMBER: 
+        MOV AL,INPUTTOTAL
+        MOV PRICE4,AL;move the inputtotal to price4
+
+        CALL NEWLINE ;Display new product
+
+        MOV AH,09H
+        LEA DX,NEWPRODNAME
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,PRDN4
+        INT 21H
+
+        CALL NEWLINE;Display new price
+
+        MOV AH,09H
+        LEA DX,NEWPRODPRICE
+        INT 21H
+
+        MOV AH,0
+        MOV AL,PRICE4
+
+        DIV HUNDRED
+        MOV REMAINDER,AH
+        MOV AH,0
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+        
+        MOV AH,0
+        MOV AL,REMAINDER
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+        
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
 
 EXIT:
         MOV AX,4C00H
