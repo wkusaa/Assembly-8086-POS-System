@@ -79,7 +79,7 @@
         REG3 DB "Account register succesfully!$"
         REGYN DB ?
         STRTOTAL DB "Total Amount (Price included 6% service tax): $"
-        STRDISCOUNT DB "Total Discount: $" 
+        STRDISCOUNT DB "Discount: $" 
         STRSUBTOTAL DB "Subtotal: $"
         STRCONFORDER DB "Confirm Order?(y/n): $"
 
@@ -102,6 +102,7 @@
         RM DB "RM $"
         PERCENT DB "%$"
         TAX DB 106
+        NINE DB 9
 .CODE
 MAIN PROC
         MOV AX,@DATA
@@ -564,20 +565,14 @@ CALCULATE:
         INT 21H
 
         MOV AH,01H
-        MOV MEMBER,AL
         INT 21H
 
-        CMP MEMBER,'y';MEMBER?
-        JNE CALCULATE1
+        CMP AL,'y'
+        JE MEMBER1
 
-        MOV DISCOUNT,10
-        MOV AX,90
-        MUL TOTAL
-        DIV HUNDRED
-        MUL TAX
-        DIV HUNDRED
+        JMP NMEMBER
 
-CALCULATE1:
+MEMBER1:
         MOV AH,09H
         LEA DX,NL
         INT 21H
@@ -586,11 +581,58 @@ CALCULATE1:
         LEA DX,STRDISCOUNT
         INT 21H
 
+        MOV DISCOUNT,10
+        MOV AH,0
+        MOV AL,DISCOUNT
+        DIV TEN
+        MOV BX,AX
+
         MOV AH,02H
-        MOV DL,DISCOUNT
+        MOV DL,BL
         ADD DL,30H
         INT 21H
 
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+
+        MOV AX,TOTAL
+        MUL NINE
+        DIV TEN
+        MUL TAX
+        DIV HUNDRED
+
+        JMP L1
+NMEMBER:
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY DISCOUNT
+        LEA DX,STRDISCOUNT
+        INT 21H
+
+        MOV DISCOUNT,0
+        MOV AX,TOTAL
+        DIV HUNDRED
+        MUL TAX
+
+        MOV AH,0
+        MOV AL,DISCOUNT
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+L1:
         MOV AH,09H
         LEA DX,PERCENT
         INT 21H
@@ -607,6 +649,10 @@ CALCULATE1:
         LEA DX,RM
         INT 21H
 
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+        
         MOV AH,09H
         LEA DX,STRCONFORDER
         INT 21H
