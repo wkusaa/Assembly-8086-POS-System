@@ -102,6 +102,7 @@
         RM DB "RM $"
         PERCENT DB "%$"
         TAX DB 106
+        NINE DB 9
 .CODE
 MAIN PROC
         MOV AX,@DATA
@@ -595,6 +596,12 @@ MEMBER1:
         MOV DL,BH
         ADD DL,30H
         INT 21H
+
+        MOV AX,TOTAL
+        MUL NINE
+        DIV TEN
+        MUL TAX
+        DIV HUNDRED
 
         JMP L1
 NMEMBER:
