@@ -46,8 +46,8 @@
         MEMBER DB ?
         OGPRICE DW ? ;ORIGINAL PRICE
         DISCOUNT DB 0
-        SALES DB ? ;TOTAL SALES
-        MM2 DB "2. Summary $"
+        SALES DW 0 ;TOTAL SALES
+        MM2 DB "2. Summary $"   
         MM3 DB "3. Product $"
         MM4 DB "4. Exit $"
         STR4 DB "Selection: $"
@@ -82,7 +82,6 @@
         STRDISCOUNT DB "Discount: $" 
         STRSUBTOTAL DB "Subtotal: $"
         STRCONFORDER DB "Confirm Order?(y/n): $"
-
         SUMMARYTOTALSALES DB "Total Sales for this session : $"
 
 
@@ -649,6 +648,8 @@ L1:
         LEA DX,RM
         INT 21H
 
+
+
         MOV AH,09H
         LEA DX,NL
         INT 21H
@@ -673,23 +674,25 @@ L1:
         INT 21H
 
         MOV AH,01H
-        MOV NEXTORDER,AL
         INT 21H
 
         MOV AH,09H
         LEA DX,NL
         INT 21H
 
-        CMP NEXTORDER,'y'
+        CMP AL,'y'
         JE ORDERING3
         MOV AH,09H
         LEA DX,NL
         INT 21H
 
+        MOV TOTAL,0
         MOV DISCOUNT,0
         MOV SUBTOTAL,0
         JMP MAINMENU
+
 ORDERING3:
+        MOV TOTAL,0
         MOV SUBTOTAL,0
         MOV DISCOUNT,0
         JMP ORDERING
