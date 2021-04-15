@@ -79,7 +79,7 @@
         REG3 DB "Account register succesfully!$"
         REGYN DB ?
         STRTOTAL DB "Total Amount (Price included 6% service tax): $"
-        STRDISCOUNT DB "Total Discount: $" 
+        STRDISCOUNT DB "Discount: $" 
         STRSUBTOTAL DB "Subtotal: $"
         STRCONFORDER DB "Confirm Order?(y/n): $"
 
@@ -570,10 +570,11 @@ CALCULATE:
         CMP MEMBER,'y';MEMBER?
         JNE CALCULATE1
 
-        MOV DISCOUNT,10
-        MOV AX,90
+        MOV AL,10
+        MOV DISCOUNT,AL
+        MOV AX,9
         MUL TOTAL
-        DIV HUNDRED
+        DIV TEN
         MUL TAX
         DIV HUNDRED
 
@@ -607,6 +608,10 @@ CALCULATE1:
         LEA DX,RM
         INT 21H
 
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+        
         MOV AH,09H
         LEA DX,STRCONFORDER
         INT 21H
