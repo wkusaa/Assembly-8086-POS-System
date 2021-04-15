@@ -564,21 +564,14 @@ CALCULATE:
         INT 21H
 
         MOV AH,01H
-        MOV MEMBER,AL
         INT 21H
 
-        CMP MEMBER,'y';MEMBER?
-        JNE CALCULATE1
+        CMP AL,'y'
+        JE MEMBER1
 
-        MOV AL,10
-        MOV DISCOUNT,AL
-        MOV AX,9
-        MUL TOTAL
-        DIV TEN
-        MUL TAX
-        DIV HUNDRED
+        JMP NMEMBER
 
-CALCULATE1:
+MEMBER1:
         MOV AH,09H
         LEA DX,NL
         INT 21H
@@ -587,11 +580,52 @@ CALCULATE1:
         LEA DX,STRDISCOUNT
         INT 21H
 
+        MOV DISCOUNT,10
+        MOV AH,0
+        MOV AL,DISCOUNT
+        DIV TEN
+        MOV BX,AX
+
         MOV AH,02H
-        MOV DL,DISCOUNT
+        MOV DL,BL
         ADD DL,30H
         INT 21H
 
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+
+        JMP L1
+NMEMBER:
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY DISCOUNT
+        LEA DX,STRDISCOUNT
+        INT 21H
+
+        MOV DISCOUNT,0
+        MOV AX,TOTAL
+        DIV HUNDRED
+        MUL TAX
+
+        MOV AH,0
+        MOV AL,DISCOUNT
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+L1:
         MOV AH,09H
         LEA DX,PERCENT
         INT 21H
