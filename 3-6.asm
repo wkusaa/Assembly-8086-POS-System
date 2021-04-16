@@ -28,7 +28,7 @@
         PRDN4 DB 0
         OPT DB ? ;OPTION
         COUNT DB 0
-        PRICE1 DB 250
+        PRICE1 DB 230
         PRICE2 DB 200
         PRICE3 DB 100
         PRICE4 DB ?
@@ -111,15 +111,18 @@
         NL DB 0DH,0AH,"$"
         TEN DB 10
         HUNDRED DB 100
-        FIVEHUND DW 500
         REMAINDER DB ?
         DECIMAL DB ?
-        DOT DB "."
+        DOT DB ".$"
         ANS DB ?
         RM DB "RM $"
         PERCENT DB "%$"
         TAX DB 106
         NINE DB 9
+        NANS DB ?
+        NREMAINDER DB ?
+        NANS2 DB ?
+        ONE DB 1
 .CODE
 MAIN PROC
         MOV AX,@DATA
@@ -455,36 +458,35 @@ OPTION1:
         INT 21H
 
         MOV AH,01H
-        MOV OPT,AL
         INT 21H
 
-        CMP OPT,'1'
+        CMP AL,'1'
         JE PRD1
 
-        CMP OPT,'2'
+        CMP AL,'2'
         JE PROD2
 
-        CMP OPT,'3'
+        CMP AL,'3'
         JE PROD3
 
-        CMP OPT,'4'
+        CMP AL,'4'
         JE PROD4
 ORDERING1:
         JMP ORDERING
 PROD2:
-        CMP PRDN2,'0'
+        CMP PRDN2,0
         JE ORDERING1
         JMP PRD2
 PROD3:
-        CMP PRDN3,'0'
+        CMP PRDN3,0
         JE ORDERING1
         JMP PRD3
 PROD4:
-        CMP PRDN4,'0'
+        CMP PRDN4,0
         JE ORDERING1
         JMP PRD4
 PRD1:
-        CMP PRDN1,'0'
+        CMP PRDN1,0
         JE ORDERING1
 
         MOV AH,09H
@@ -624,11 +626,14 @@ MEMBER1:
         ADD DL,30H
         INT 21H
 
-        MOV AX,TOTAL
-        MUL NINE
-        DIV TEN
-        MUL TAX
-        DIV HUNDRED
+        MOV AX,TOTAL;250
+        MUL NINE;2250
+        DIV TEN;225
+        MUL TAX;23850
+        ADD SALES,AX
+        DIV HUNDRED;238.50
+        MOV NREMAINDER,AH;50
+        MOV NANS,AL;238
 
         JMP L1
 NMEMBER:
@@ -639,11 +644,6 @@ NMEMBER:
         MOV AH,09H;DISPLAY DISCOUNT
         LEA DX,STRDISCOUNT
         INT 21H
-
-        MOV DISCOUNT,0
-        MOV AX,TOTAL
-        DIV HUNDRED
-        MUL TAX
 
         MOV AH,0
         MOV AL,DISCOUNT
@@ -659,6 +659,14 @@ NMEMBER:
         MOV DL,BH
         ADD DL,30H
         INT 21H
+
+        MOV AX,TOTAL;250
+        MUL TAX;26500
+        DIV HUNDRED;265.00
+        ADD SALES,AX
+        MOV NREMAINDER,AH;00
+        MOV NANS,AL;265
+
 L1:
         MOV AH,09H
         LEA DX,PERCENT
@@ -676,7 +684,51 @@ L1:
         LEA DX,RM
         INT 21H
 
+        ;RMXXX.00
+        MOV AL,NANS;238
+        MOV AH,0
+        DIV HUNDRED;2.38
+        MOV NANS2,AH;0.38
 
+        MOV AH,02H
+        MOV DL,AL;2
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,0
+        MOV AL,NANS2;38
+        DIV TEN;3.8
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL;3
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH;8
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,DOT
+        INT 21H
+
+        ;RM000.XX
+        MOV AH,0
+        MOV AL,NREMAINDER
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL;5
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH;0
+        ADD DL,30H
+        INT 21H
 
         MOV AH,09H
         LEA DX,NL
@@ -710,6 +762,7 @@ L1:
 
         CMP AL,'y'
         JE ORDERING3
+
         MOV AH,09H
         LEA DX,NL
         INT 21H
@@ -725,11 +778,869 @@ ORDERING3:
         MOV DISCOUNT,0
         JMP ORDERING
 PRD2:
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+        
+        CMP ACTN1,5
+        JNE ADMIN1
+        MOV CH,0
+        MOV CL,ACTN1
+        MOV SI,0
+        CHECKUSER3:
+                  MOV AL,USERNAME[SI]
+                  CMP INPUTUSER[SI],AL
+                  JNE ADMIN1
 
+                  INC SI
+        LOOP CHECKUSER3
+
+        MOV AH,09H
+        LEA DX,STR2
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+        SUB AL,30H
+        MOV QTT,AL
+
+ADMIN1:
+        MOV AH,0
+        MOV AL,PRICE2
+        MUL QTT
+        MOV SUBTOTAL,AX
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,STR3
+        INT 21H
+
+        MOV AH,01H
+        MOV MORE,AL
+        INT 21H
+
+        CMP MORE,'y'
+        JE ORDERINGT
+        JMP CALCULATE1
+ORDERINGT:
+        JMP ORDERING
+CALCULATE1:
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY SUBTOTAL
+        LEA DX,STRSUBTOTAL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,RM
+        INT 21H
+
+        MOV AX,SUBTOTAL
+        MOV TOTAL,AX
+
+        DIV HUNDRED
+        MOV REMAINDER,AH
+        MOV AH,0
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+        
+        MOV AH,0
+        MOV AL,REMAINDER
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,MEMBERSTR
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        CMP AL,'y'
+        JE MEMBER2
+
+        JMP NMEMBER1
+
+MEMBER2:
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY DISCOUNT
+        LEA DX,STRDISCOUNT
+        INT 21H
+
+        MOV DISCOUNT,10
+        MOV AH,0
+        MOV AL,DISCOUNT
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+
+        MOV AX,TOTAL;250
+        MUL NINE;2250
+        DIV TEN;225
+        MUL TAX;23850
+        ADD SALES,AX
+        DIV HUNDRED;238.50
+        MOV NREMAINDER,AH;50
+        MOV NANS,AL;238
+
+        JMP L2
+NMEMBER1:
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY DISCOUNT
+        LEA DX,STRDISCOUNT
+        INT 21H
+
+        MOV AH,0
+        MOV AL,DISCOUNT
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+
+        MOV AX,TOTAL;250
+        MUL TAX;26500
+        DIV HUNDRED;265.00
+        ADD SALES,AX
+        MOV NREMAINDER,AH;00
+        MOV NANS,AL;265
+
+L2:
+        MOV AH,09H
+        LEA DX,PERCENT
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY TOTAL
+        LEA DX,STRTOTAL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,RM
+        INT 21H
+
+        ;RMXXX.00
+        MOV AL,NANS;238
+        MOV AH,0
+        DIV HUNDRED;2.38
+        MOV NANS2,AH;0.38
+
+        MOV AH,02H
+        MOV DL,AL;2
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,0
+        MOV AL,NANS2;38
+        DIV TEN;3.8
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL;3
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH;8
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,DOT
+        INT 21H
+
+        ;RM000.XX
+        MOV AH,0
+        MOV AL,NREMAINDER
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL;5
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH;0
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+        
+        MOV AH,09H
+        LEA DX,STRCONFORDER
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+        CMP AL,'y'
+        JNE ORDERING4
+
+        INC COUNT
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,STR5
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        CMP AL,'y'
+        JE ORDERING4
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV TOTAL,0
+        MOV DISCOUNT,0
+        MOV SUBTOTAL,0
+        JMP MAINMENU
+
+ORDERING4:
+        MOV TOTAL,0
+        MOV SUBTOTAL,0
+        MOV DISCOUNT,0
+        JMP ORDERING
 PRD3:
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+        
+        CMP ACTN1,5
+        JNE ADMIN2
+        MOV CH,0
+        MOV CL,ACTN1
+        MOV SI,0
+        CHECKUSER4:
+                  MOV AL,USERNAME[SI]
+                  CMP INPUTUSER[SI],AL
+                  JNE ADMIN2
 
+                  INC SI
+        LOOP CHECKUSER4
+
+        MOV AH,09H
+        LEA DX,STR2
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+        SUB AL,30H
+        MOV QTT,AL
+
+ADMIN2:
+        MOV AH,0
+        MOV AL,PRICE3
+        MUL QTT
+        MOV SUBTOTAL,AX
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,STR3
+        INT 21H
+
+        MOV AH,01H
+        MOV MORE,AL
+        INT 21H
+
+        CMP MORE,'y'
+        JE ORDERINGZ
+        JMP CALCULATE2
+ORDERINGZ:
+        JMP ORDERING
+CALCULATE2:
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY SUBTOTAL
+        LEA DX,STRSUBTOTAL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,RM
+        INT 21H
+
+        MOV AX,SUBTOTAL
+        MOV TOTAL,AX
+
+        DIV HUNDRED
+        MOV REMAINDER,AH
+        MOV AH,0
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+        
+        MOV AH,0
+        MOV AL,REMAINDER
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,MEMBERSTR
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        CMP AL,'y'
+        JE MEMBER3
+
+        JMP NMEMBER2
+
+MEMBER3:
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY DISCOUNT
+        LEA DX,STRDISCOUNT
+        INT 21H
+
+        MOV DISCOUNT,10
+        MOV AH,0
+        MOV AL,DISCOUNT
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+
+        MOV AX,TOTAL;250
+        MUL NINE;2250
+        DIV TEN;225
+        MUL TAX;23850
+        ADD SALES,AX
+        DIV HUNDRED;238.50
+        MOV NREMAINDER,AH;50
+        MOV NANS,AL;238
+
+        JMP L3
+NMEMBER2:
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY DISCOUNT
+        LEA DX,STRDISCOUNT
+        INT 21H
+
+        MOV AH,0
+        MOV AL,DISCOUNT
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+
+        MOV AX,TOTAL;250
+        MUL TAX;26500
+        DIV HUNDRED;265.00
+        ADD SALES,AX
+        MOV NREMAINDER,AH;00
+        MOV NANS,AL;265
+
+L3:
+        MOV AH,09H
+        LEA DX,PERCENT
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY TOTAL
+        LEA DX,STRTOTAL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,RM
+        INT 21H
+
+        ;RMXXX.00
+        MOV AL,NANS;238
+        MOV AH,0
+        DIV HUNDRED;2.38
+        MOV NANS2,AH;0.38
+
+        MOV AH,02H
+        MOV DL,AL;2
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,0
+        MOV AL,NANS2;38
+        DIV TEN;3.8
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL;3
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH;8
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,DOT
+        INT 21H
+
+        ;RM000.XX
+        MOV AH,0
+        MOV AL,NREMAINDER
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL;5
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH;0
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+        
+        MOV AH,09H
+        LEA DX,STRCONFORDER
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+        CMP AL,'y'
+        JNE ORDERING5
+
+        INC COUNT
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,STR5
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        CMP AL,'y'
+        JE ORDERING5
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV TOTAL,0
+        MOV DISCOUNT,0
+        MOV SUBTOTAL,0
+        JMP MAINMENU
+
+ORDERING5:
+        MOV TOTAL,0
+        MOV SUBTOTAL,0
+        MOV DISCOUNT,0
+        JMP ORDERING
 PRD4:
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+        
+        CMP ACTN1,5
+        JNE ADMIN4
+        MOV CH,0
+        MOV CL,ACTN1
+        MOV SI,0
+        CHECKUSER6:
+                  MOV AL,USERNAME[SI]
+                  CMP INPUTUSER[SI],AL
+                  JNE ADMIN4
 
+                  INC SI
+        LOOP CHECKUSER6
+
+        MOV AH,09H
+        LEA DX,STR2
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+        SUB AL,30H
+        MOV QTT,AL
+
+ADMIN4:
+        MOV AH,0
+        MOV AL,PRICE4
+        MUL QTT
+        MOV SUBTOTAL,AX
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,STR3
+        INT 21H
+
+        MOV AH,01H
+        MOV MORE,AL
+        INT 21H
+
+        CMP MORE,'y'
+        JE ORDERING6
+        JMP CALCULATE3
+ORDERING6:
+        JMP ORDERING
+CALCULATE3:
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY SUBTOTAL
+        LEA DX,STRSUBTOTAL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,RM
+        INT 21H
+
+        MOV AX,SUBTOTAL
+        MOV TOTAL,AX
+
+        DIV HUNDRED
+        MOV REMAINDER,AH
+        MOV AH,0
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+        
+        MOV AH,0
+        MOV AL,REMAINDER
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,MEMBERSTR
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        CMP AL,'y'
+        JE MEMBER5
+
+        JMP NMEMBERF
+
+MEMBER5:
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY DISCOUNT
+        LEA DX,STRDISCOUNT
+        INT 21H
+
+        MOV DISCOUNT,10
+        MOV AH,0
+        MOV AL,DISCOUNT
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+
+        MOV AX,TOTAL;250
+        MUL NINE;2250
+        DIV TEN;225
+        MUL TAX;23850
+        ADD SALES,AX
+        DIV HUNDRED;238.50
+        MOV NREMAINDER,AH;50
+        MOV NANS,AL;238
+
+        JMP L4
+NMEMBERF:
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY DISCOUNT
+        LEA DX,STRDISCOUNT
+        INT 21H
+
+        MOV AH,0
+        MOV AL,DISCOUNT
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH
+        ADD DL,30H
+        INT 21H
+
+        MOV AX,TOTAL;250
+        MUL TAX;26500
+        DIV HUNDRED;265.00
+        ADD SALES,AX
+        MOV NREMAINDER,AH;00
+        MOV NANS,AL;265
+
+L4:
+        MOV AH,09H
+        LEA DX,PERCENT
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H;DISPLAY TOTAL
+        LEA DX,STRTOTAL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,RM
+        INT 21H
+
+        ;RMXXX.00
+        MOV AL,NANS;238
+        MOV AH,0
+        DIV HUNDRED;2.38
+        MOV NANS2,AH;0.38
+
+        MOV AH,02H
+        MOV DL,AL;2
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,0
+        MOV AL,NANS2;38
+        DIV TEN;3.8
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL;3
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH;8
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,DOT
+        INT 21H
+
+        ;RM000.XX
+        MOV AH,0
+        MOV AL,NREMAINDER
+        DIV TEN
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL;5
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH;0
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+        
+        MOV AH,09H
+        LEA DX,STRCONFORDER
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+        CMP AL,'y'
+        JNE ORDERINGS
+
+        INC COUNT
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,STR5
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        CMP AL,'y'
+        JE ORDERINGS
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV TOTAL,0
+        MOV DISCOUNT,0
+        MOV SUBTOTAL,0
+        JMP MAINMENU
+
+ORDERINGS:
+        MOV TOTAL,0
+        MOV SUBTOTAL,0
+        MOV DISCOUNT,0
+        JMP ORDERING
 SUMMARY:
         CALL CLEARSCREEN
 
@@ -786,75 +1697,11 @@ SUMMARY:
         CALL NEWLINE
 
         MOV AH,09H
-        LEA DX,ENTERANYKEY
+        LEA DX,STR5
         INT 21H
 
         MOV AH,01H
         INT 21H
-
-        JMP MAINMENU
-
-PRODUCTLIST:
-        CALL CLEARSCREEN
-
-        MOV AH,09H
-        LEA DX,PRODUCTLISTTEXT
-        INT 21H
-
-        MOV AH,09H
-        LEA DX,LINETEXTNEW
-        INT 21H
-
-        CALL NEWLINE
-
-
-        MOV AH,09H
-        LEA DX,ENTERANYKEY
-        INT 21H
-
-        MOV AH,01H
-        INT 21H
-
-        JMP MAINMENU
-
-PRODUCTADD:
-        CALL CLEARSCREEN
-
-        MOV AH,09H
-        LEA DX,PRODUCTTEXT
-        INT 21H
-
-        MOV AH,09H
-        LEA DX,LINETEXTNEW
-        INT 21H
-
-        CALL NEWLINE
-
-        MOV AH,09H
-        LEA DX,PMM1
-        INT 21H
-
-        CALL NEWLINE
-
-        MOV AH,09H
-        LEA DX,PMM2
-        INT 21H
-
-        CALL NEWLINE
-        
-        MOV AH,09H
-        LEA DX,STR4
-        INT 21H
-
-        MOV AH,01H
-        INT 21H
-        MOV SEL,AL
-
-        CMP SEL,'1'
-        JE ORDERING
-
-        CMP SEL,'2'
-        JE SUMMARY1
 
 
 PRODUCT:
