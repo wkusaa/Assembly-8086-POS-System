@@ -534,10 +534,9 @@ ADMIN:
         INT 21H
 
         MOV AH,01H
-        MOV MORE,AL
         INT 21H
 
-        CMP MORE,'y'
+        CMP AL,'y'
         JE ORDERING2
         JMP CALCULATE
 ORDERING2:
@@ -823,10 +822,9 @@ ADMIN1:
         INT 21H
 
         MOV AH,01H
-        MOV MORE,AL
         INT 21H
 
-        CMP MORE,'y'
+        CMP AL,'y'
         JE ORDERINGT
         JMP CALCULATE1
 ORDERINGT:
@@ -1111,10 +1109,9 @@ ADMIN2:
         INT 21H
 
         MOV AH,01H
-        MOV MORE,AL
         INT 21H
 
-        CMP MORE,'y'
+        CMP AL,'y'
         JE ORDERINGZ
         JMP CALCULATE2
 ORDERINGZ:
@@ -1399,10 +1396,9 @@ ADMIN4:
         INT 21H
 
         MOV AH,01H
-        MOV MORE,AL
         INT 21H
 
-        CMP MORE,'y'
+        CMP AL,'y'
         JE ORDERING6
         JMP CALCULATE3
 ORDERING6:
