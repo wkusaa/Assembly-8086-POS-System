@@ -86,7 +86,10 @@
         SUMMARYTOTALTRANSACMADE DB "Total transaction made for this session : $"
         SUMMARYTOTALSALES DB "Total sales for this session : $"
 
-        PRODUCTNAMETEXT DB "Enter Product Name",0DH,0AH,"(P4: [PRODUCTNAME]): $"
+        PMM1 DB "1. Product List $"
+        PMM2 DB "2. Add New Product $"
+
+        PRODUCTNAMETEXT DB "Enter Product Name",0DH,0AH,"e.g. (P4. [PRODUCTNAME]): $"
         ENTERPRODPRICETEXT DB "Enter Product Price",0DH,0AH,"(MAX 3 DIGIT, LESS THAN RM 256 AND ROUND OF TO THE NEAREST RINGGIT): RM $"
         
         NEWPRODNAME DB "New Product Name : $"
@@ -95,10 +98,14 @@
         INPUTVALUE DB 0
         INPUTTOTAL DB 0
 
+        ENTERANYKEY DB 0DH,0AH,0DH,0AH,">>>Press enter to return to main menu... $"
+        MAINMENUTEXT DB "MAIN MENU $"
         REGTEXT DB "REGISTER$"
         LOGTEXT DB "LOGIN$"
         SUMMARYTEXT DB "SUMMARY$"
         PRODUCTTEXT DB "PRODUCT$"
+        PRODUCTADD DB "ADD NEW PRODUCT$"
+        PRODUCTLISTTEXT DB "PRODUCT LIST$"
         LINETEXT DB "==========================$"
         LINETEXTNEW DB 0DH,0AH,"==========================$"
         NL DB 0DH,0AH,"$"
@@ -321,6 +328,16 @@ ERROR2:
 MAINMENU:
         ;mainmenu list
         CALL CLEARSCREEN
+
+        MOV AH,09H
+        LEA DX,MAINMENUTEXT
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,LINETEXTNEW
+        INT 21H
+
+        CALL NEWLINE
 
         MOV AH,09H
         LEA DX,MM1
@@ -768,16 +785,83 @@ SUMMARY:
         
         CALL NEWLINE
 
+        MOV AH,09H
+        LEA DX,ENTERANYKEY
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        JMP MAINMENU
+
+PRODUCTLIST:
+        CALL CLEARSCREEN
+
+        MOV AH,09H
+        LEA DX,PRODUCTLISTTEXT
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,LINETEXTNEW
+        INT 21H
+
+        CALL NEWLINE
+
+
+        MOV AH,09H
+        LEA DX,ENTERANYKEY
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        JMP MAINMENU
+
+PRODUCTADD:
+        CALL CLEARSCREEN
+
+        MOV AH,09H
+        LEA DX,PRODUCTTEXT
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,LINETEXTNEW
+        INT 21H
+
+        CALL NEWLINE
+
+        MOV AH,09H
+        LEA DX,PMM1
+        INT 21H
+
+        CALL NEWLINE
+
+        MOV AH,09H
+        LEA DX,PMM2
+        INT 21H
+
+        CALL NEWLINE
         
+        MOV AH,09H
+        LEA DX,STR4
+        INT 21H
 
+        MOV AH,01H
+        INT 21H
+        MOV SEL,AL
 
+        CMP SEL,'1'
+        JE ORDERING
+
+        CMP SEL,'2'
+        JE SUMMARY1
 
 
 PRODUCT:
         CALL CLEARSCREEN
 
         MOV AH,09H
-        LEA DX,PRODUCTTEXT
+        LEA DX,PRODUCTADD
         INT 21H
 
         MOV AH,09H
@@ -836,6 +920,8 @@ MOVESTR:
         ENDOFNUMBER: 
         MOV AL,INPUTTOTAL
         MOV PRICE4,AL;move the inputtotal to price4
+        MOV INPUTTOTAL,0
+        MOV INPUTVALUE,0
 
         CALL NEWLINE ;Display new product
 
@@ -886,6 +972,15 @@ MOVESTR:
         MOV DL,BH
         ADD DL,30H
         INT 21H
+
+        MOV AH,09H
+        LEA DX,ENTERANYKEY
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        JMP MAINMENU
 
 EXIT:
         MOV AX,4C00H
