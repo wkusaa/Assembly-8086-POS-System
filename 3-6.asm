@@ -25,7 +25,7 @@
         PRDN1 DB "P1. Air Jordan 1 High Retro $"
         PRDN2 DB "P2. Air Force 1 $"
         PRDN3 DB "P3. Air Max 97 $"
-        PRDN4 DB 0
+        ; PRDN4 DB 0
         OPT DB ? ;OPTION
         COUNT DB 0
         PRICE1 DB 230
@@ -71,7 +71,7 @@
         STRPROD4 LABEL BYTE
         MAXN5 DB 30
         ACTN5 DB ?
-        INPUPROD4 DB 30 DUP("$")
+        PRDN4 DB 30 DUP("$")
         ERRORMSG DB "Invalid Password!$"
         ERRORMSG1 DB "Invalid Username!$"
         REG1 DB "Register a new account?(y/n): $"
@@ -1697,11 +1697,63 @@ SUMMARY:
         CALL NEWLINE
 
         MOV AH,09H
-        LEA DX,STR5
+        LEA DX,ENTERANYKEY
         INT 21H
 
         MOV AH,01H
         INT 21H
+
+        JMP MAINMENU
+
+PRODUCTLIST:
+        CALL CLEARSCREEN
+
+        MOV AH,09H
+        LEA DX,PRODUCTLISTTEXT
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,LINETEXTNEW
+        INT 21H
+
+        CALL NEWLINE
+
+        MOV AH,09H
+        LEA DX,ENTERANYKEY
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        JMP MAINMENU
+
+ADDPRODUCT:
+        CALL CLEARSCREEN
+
+        MOV AH,09H
+        LEA DX,PRODUCTTEXT
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,LINETEXTNEW
+        INT 21H
+
+        CALL NEWLINE
+
+        MOV AH,09H
+        LEA DX,PMM1
+        INT 21H
+
+        CALL NEWLINE
+
+        MOV AH,09H
+        LEA DX,PMM2
+        INT 21H
+
+        CALL NEWLINE
+
+
+
 
 
 PRODUCT:
@@ -1728,16 +1780,16 @@ PRODUCT:
         
         CALL NEWLINE
 
-;MOVE THE STRING TO ANOTHER STRING
-        LEA DI, PRDN4 	; Starting address of Destination
-	LEA SI, INPUPROD4		; Starting address of Source
-	MOV CX, 30		; Number of elements = 30
-	PUSH DS
-	POP ES			; make ES=DS
-	CLD			; set SI and DI to auto-increment	
-MOVESTR:	
-        MOVSB
-	LOOP MOVESTR
+; ;MOVE THE STRING TO ANOTHER STRING
+;         LEA DI, PRDN4 	; Starting address of Destination
+; 	LEA SI, PRDN4		; Starting address of Source
+; 	MOV CX, 30		; Number of elements = 30
+; 	PUSH DS
+; 	POP ES			; make ES=DS
+; 	CLD			; set SI and DI to auto-increment	
+; MOVESTR:	
+;         MOVSB
+; 	LOOP MOVESTR
 
 ;ENTER PRICE
         MOV AH,09H
