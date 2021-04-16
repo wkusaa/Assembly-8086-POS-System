@@ -405,7 +405,7 @@ ORDERING:
         LEA DX,NL
         INT 21H
 
-        CMP PRDN1,0
+        CMP PRDN1,'$'
         JE PD2
 
         MOV AH,09H
@@ -417,7 +417,7 @@ ORDERING:
         INT 21H
 
 PD2:
-        CMP PRDN2,0
+        CMP PRDN2,'$'
         JE PD3
 
         MOV AH,09H
@@ -429,14 +429,14 @@ PD2:
         INT 21H
 
 PD3:
-        CMP PRDN3,0
+        CMP PRDN3,'$'
         JE PD4
 
         MOV AH,09H
         LEA DX,PRDN3
         INT 21H
 PD4:
-        CMP PRDN4,0
+        CMP PRDN4,'$'
         JE OPTION1
 
         MOV AH,09H
@@ -474,19 +474,19 @@ OPTION1:
 ORDERING1:
         JMP ORDERING
 PROD2:
-        CMP PRDN2,0
+        CMP PRDN2,'$'
         JE ORDERING1
         JMP PRD2
 PROD3:
-        CMP PRDN3,0
+        CMP PRDN3,'$'
         JE ORDERING1
         JMP PRD3
 PROD4:
-        CMP PRDN4,0
+        CMP PRDN4,'$'
         JE ORDERING1
         JMP PRD4
 PRD1:
-        CMP PRDN1,0
+        CMP PRDN1,'$'
         JE ORDERING1
 
         MOV AH,09H
