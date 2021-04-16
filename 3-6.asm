@@ -435,6 +435,10 @@ PD3:
         MOV AH,09H
         LEA DX,PRDN3
         INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
 PD4:
         CMP PRDN4,'$'
         JE OPTION1
@@ -1679,20 +1683,61 @@ SUMMARY:
         LEA DX,SUMMARYTOTALSALES
         INT 21H
 
+        MOV AX,SALES
+        DIV HUNDRED
+        MOV NREMAINDER,AH;00
+        MOV NANS,AL;265
+
+        MOV AH,09H
+        LEA DX,RM       
+        INT 21H
+
+        ;RMXXX.00
+        MOV AL,NANS;238
         MOV AH,0
-        MOV AL,COUNT ;display total order made
+        DIV HUNDRED;2.38
+        MOV NANS2,AH;0.38
+
+        MOV AH,02H
+        MOV DL,AL;2
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,0
+        MOV AL,NANS2;38
+        DIV TEN;3.8
+        MOV BX,AX
+
+        MOV AH,02H
+        MOV DL,BL;3
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,02H
+        MOV DL,BH;8
+        ADD DL,30H
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,DOT
+        INT 21H
+
+        ;RM000.XX
+        MOV AH,0
+        MOV AL,NREMAINDER
         DIV TEN
         MOV BX,AX
 
         MOV AH,02H
-        MOV DL,BL
+        MOV DL,BL;5
         ADD DL,30H
         INT 21H
-        
+
         MOV AH,02H
-        MOV DL,BH
+        MOV DL,BH;0
         ADD DL,30H
         INT 21H
+
         
         CALL NEWLINE
 
