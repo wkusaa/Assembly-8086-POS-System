@@ -1705,29 +1705,8 @@ SUMMARY:
 
         JMP MAINMENU
 
-PRODUCTLIST:
-        CALL CLEARSCREEN
 
-        MOV AH,09H
-        LEA DX,PRODUCTLISTTEXT
-        INT 21H
-
-        MOV AH,09H
-        LEA DX,LINETEXTNEW
-        INT 21H
-
-        CALL NEWLINE
-
-        MOV AH,09H
-        LEA DX,ENTERANYKEY
-        INT 21H
-
-        MOV AH,01H
-        INT 21H
-
-        JMP MAINMENU
-
-ADDPRODUCT:
+PRODUCT:
         CALL CLEARSCREEN
 
         MOV AH,09H
@@ -1752,11 +1731,46 @@ ADDPRODUCT:
 
         CALL NEWLINE
 
+        MOV AH,09H
+        LEA DX,STR4
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+        MOV SEL,AL
+
+        CMP SEL,'1'
+        JE PRODUCTLIST
+
+        CMP SEL,'2'
+        JE ADDPRODUCT
 
 
 
+PRODUCTLIST:
+        CALL CLEARSCREEN
 
-PRODUCT:
+        MOV AH,09H
+        LEA DX,PRODUCTLISTTEXT
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,LINETEXTNEW
+        INT 21H
+
+        CALL NEWLINE
+
+        MOV AH,09H
+        LEA DX,ENTERANYKEY
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        JMP MAINMENU
+
+
+ADDPRODUCT:
         CALL CLEARSCREEN
 
         MOV AH,09H
@@ -1880,6 +1894,7 @@ PRODUCT:
         INT 21H
 
         JMP MAINMENU
+
 
 EXIT:
         MOV AX,4C00H
