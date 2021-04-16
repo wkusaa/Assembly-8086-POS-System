@@ -1661,6 +1661,12 @@ SUMMARY:
         CALL NEWLINE
 
         MOV AH,09H
+        LEA DX,LOGO
+        INT 21H
+
+        CALL NEWLINE
+
+        MOV AH,09H
         LEA DX,SUMMARYTOTALTRANSACMADE
         INT 21H
 
