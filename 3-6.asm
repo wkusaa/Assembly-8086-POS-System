@@ -87,7 +87,7 @@
         SUMMARYTOTALSALES DB "Total sales for this session : $"
 
         PRODUCTNAMETEXT DB "Enter Product Name",0DH,0AH,"(P4: [PRODUCTNAME]): $"
-        ENTERPRODPRICETEXT DB "Enter Product Price",0DH,0AH,"(MAX 3 DIGIT AND ROUND OF THE CENTS TO RINGGIT): RM $"
+        ENTERPRODPRICETEXT DB "Enter Product Price",0DH,0AH,"(MAX 3 DIGIT, LESS THAN RM 256 AND ROUND OF TO THE NEAREST RINGGIT): RM $"
         
         NEWPRODNAME DB "New Product Name : $"
         NEWPRODPRICE DB "New Product Price : RM $"
@@ -767,6 +767,8 @@ SUMMARY:
         INT 21H
         
         CALL NEWLINE
+
+        
 
 
 
