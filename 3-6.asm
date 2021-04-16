@@ -88,12 +88,15 @@
 
         PMM1 DB "1. Product List $"
         PMM2 DB "2. Add New Product $"
+        PMM3 DB "3. Delete Product $"
 
         PRODUCTNAMETEXT DB "Enter Product Name",0DH,0AH,"e.g. (P4. [PRODUCTNAME]): $"
         ENTERPRODPRICETEXT DB "Enter Product Price",0DH,0AH,"(MAX 3 DIGIT, LESS THAN RM 256 AND ROUND OF TO THE NEAREST RINGGIT): RM $"
         
         NEWPRODNAME DB "New Product Name : $"
         NEWPRODPRICE DB "New Product Price : RM $"
+
+        PRODUCTDELETED DB "Product deleted successfully! $"
 
         INPUTVALUE DB 0
         INPUTTOTAL DB 0
@@ -106,6 +109,7 @@
         PRODUCTTEXT DB "PRODUCT$"
         PRODUCTADD DB "ADD NEW PRODUCT$"
         PRODUCTLISTTEXT DB "PRODUCT LIST$"
+        DELETEPRODUCTTEXT DB "DELETE PRODUCT$"
         LINETEXT DB "==========================$"
         LINETEXTNEW DB 0DH,0AH,"==========================$"
         NL DB 0DH,0AH,"$"
@@ -1773,6 +1777,12 @@ PRODUCT:
         CALL NEWLINE
 
         MOV AH,09H
+        LEA DX,PMM3
+        INT 21H
+
+        CALL NEWLINE
+
+        MOV AH,09H
         LEA DX,STR4
         INT 21H
 
@@ -1784,9 +1794,15 @@ PRODUCT:
         JE PRODUCTLIST
 
         CMP SEL,'2'
-        JE ADDPRODUCT
+        JE ADDPRODUCT1
 
+        CMP SEL,'3'
+        JE DELETEPRODUCT
 
+        JMP MAINMENU
+
+ADDPRODUCT1:
+        JMP ADDPRODUCT
 
 PRODUCTLIST:
         CALL CLEARSCREEN
@@ -1829,6 +1845,102 @@ PRODUCTLIST:
         INT 21H
 
         JMP MAINMENU
+
+
+DELETEPRODUCT:
+        CALL CLEARSCREEN
+
+        MOV AH,09H
+        LEA DX,DELETEPRODUCTTEXT
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,LINETEXTNEW
+        INT 21H
+
+        CALL NEWLINE
+
+        MOV AH,09H
+        LEA DX,PRDN1
+        INT 21H
+        CALL NEWLINE
+
+        MOV AH,09H
+        LEA DX,PRDN2
+        INT 21H
+        CALL NEWLINE
+
+        MOV AH,09H
+        LEA DX,PRDN3
+        INT 21H
+        CALL NEWLINE
+
+        MOV AH,09H
+        LEA DX,PRDN4
+        INT 21H
+        CALL NEWLINE
+
+        MOV AH,09H
+        LEA DX,STR4
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        CMP AL,'1'
+        JE DELETEPRODUCT1
+
+        CMP AL,'2'
+        JE DELETEPRODUCT2
+
+        CMP AL,'3'
+        JE DELETEPRODUCT3
+
+        CMP AL,'4'
+        JE DELETEPRODUCT4
+
+        JMP MAINMENU
+L9:
+        CALL NEWLINE
+
+        MOV AH,09H
+        LEA DX,PRODUCTDELETED
+        INT 21H
+        
+        CALL NEWLINE
+
+        MOV AH,09H
+        LEA DX,ENTERANYKEY
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        JMP MAINMENU
+
+DELETEPRODUCT1:
+        MOV PRDN1,"$"
+        MOV PRICE1,0
+        
+        JMP L9
+        
+DELETEPRODUCT2:
+        MOV PRDN2,"$"
+        MOV PRICE2,0
+
+        JMP L9
+
+DELETEPRODUCT3:
+        MOV PRDN3,"$"
+        MOV PRICE3,0
+
+        JMP L9
+
+DELETEPRODUCT4:
+        MOV PRDN4,"$"
+        MOV PRICE4,0
+
+        JMP L9
 
 
 ADDPRODUCT:
@@ -1955,7 +2067,6 @@ ADDPRODUCT:
         INT 21H
 
         JMP MAINMENU
-
 
 EXIT:
         MOV AX,4C00H
