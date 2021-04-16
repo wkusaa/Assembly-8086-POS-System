@@ -532,24 +532,6 @@ ADMIN:
         MOV AH,09H
         LEA DX,NL
         INT 21H
-
-        MOV AH,09H
-        LEA DX,STR3
-        INT 21H
-
-        MOV AH,01H
-        INT 21H
-
-        CMP AL,'y'
-        JE ORDERING2
-        JMP CALCULATE
-ORDERING2:
-        JMP ORDERING
-CALCULATE:
-        MOV AH,09H
-        LEA DX,NL
-        INT 21H
-
         MOV AH,09H;DISPLAY SUBTOTAL
         LEA DX,STRSUBTOTAL
         INT 21H
@@ -559,7 +541,7 @@ CALCULATE:
         INT 21H
 
         MOV AX,SUBTOTAL
-        MOV TOTAL,AX
+        ADD TOTAL,AX
 
         DIV HUNDRED
         MOV REMAINDER,AH
@@ -592,6 +574,23 @@ CALCULATE:
         ADD DL,30H
         INT 21H
 
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,STR3
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        CMP AL,'y'
+        JE ORDERING2
+        JMP CALCULATE
+ORDERING2:
+        JMP ORDERING
+CALCULATE:
         MOV AH,09H
         LEA DX,NL
         INT 21H
@@ -821,23 +820,6 @@ ADMIN1:
         LEA DX,NL
         INT 21H
 
-        MOV AH,09H
-        LEA DX,STR3
-        INT 21H
-
-        MOV AH,01H
-        INT 21H
-
-        CMP AL,'y'
-        JE ORDERINGT
-        JMP CALCULATE1
-ORDERINGT:
-        JMP ORDERING
-CALCULATE1:
-        MOV AH,09H
-        LEA DX,NL
-        INT 21H
-
         MOV AH,09H;DISPLAY SUBTOTAL
         LEA DX,STRSUBTOTAL
         INT 21H
@@ -847,7 +829,7 @@ CALCULATE1:
         INT 21H
 
         MOV AX,SUBTOTAL
-        MOV TOTAL,AX
+        ADD TOTAL,AX
 
         DIV HUNDRED
         MOV REMAINDER,AH
@@ -880,6 +862,24 @@ CALCULATE1:
         ADD DL,30H
         INT 21H
 
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,STR3
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        CMP AL,'y'
+        JE ORDERINGT
+        JMP CALCULATE1
+ORDERINGT:
+        JMP ORDERING
+CALCULATE1:
+       
         MOV AH,09H
         LEA DX,NL
         INT 21H
@@ -1108,23 +1108,6 @@ ADMIN2:
         LEA DX,NL
         INT 21H
 
-        MOV AH,09H
-        LEA DX,STR3
-        INT 21H
-
-        MOV AH,01H
-        INT 21H
-
-        CMP AL,'y'
-        JE ORDERINGZ
-        JMP CALCULATE2
-ORDERINGZ:
-        JMP ORDERING
-CALCULATE2:
-        MOV AH,09H
-        LEA DX,NL
-        INT 21H
-
         MOV AH,09H;DISPLAY SUBTOTAL
         LEA DX,STRSUBTOTAL
         INT 21H
@@ -1134,7 +1117,7 @@ CALCULATE2:
         INT 21H
 
         MOV AX,SUBTOTAL
-        MOV TOTAL,AX
+        ADD TOTAL,AX
 
         DIV HUNDRED
         MOV REMAINDER,AH
@@ -1166,6 +1149,24 @@ CALCULATE2:
         MOV DL,BH
         ADD DL,30H
         INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,STR3
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        CMP AL,'y'
+        JE ORDERINGZ
+        JMP CALCULATE2
+ORDERINGZ:
+        JMP ORDERING
+CALCULATE2:
 
         MOV AH,09H
         LEA DX,NL
@@ -1391,27 +1392,6 @@ ADMIN4:
         MUL QTT
         MOV SUBTOTAL,AX
 
-        MOV AH,09H
-        LEA DX,NL
-        INT 21H
-
-        MOV AH,09H
-        LEA DX,STR3
-        INT 21H
-
-        MOV AH,01H
-        INT 21H
-
-        CMP AL,'y'
-        JE ORDERING6
-        JMP CALCULATE3
-ORDERING6:
-        JMP ORDERING
-CALCULATE3:
-        MOV AH,09H
-        LEA DX,NL
-        INT 21H
-
         MOV AH,09H;DISPLAY SUBTOTAL
         LEA DX,STRSUBTOTAL
         INT 21H
@@ -1421,7 +1401,7 @@ CALCULATE3:
         INT 21H
 
         MOV AX,SUBTOTAL
-        MOV TOTAL,AX
+        ADD TOTAL,AX
 
         DIV HUNDRED
         MOV REMAINDER,AH
@@ -1453,6 +1433,28 @@ CALCULATE3:
         MOV DL,BH
         ADD DL,30H
         INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,NL
+        INT 21H
+
+        MOV AH,09H
+        LEA DX,STR3
+        INT 21H
+
+        MOV AH,01H
+        INT 21H
+
+        CMP AL,'y'
+        JE ORDERING6
+        JMP CALCULATE3
+ORDERING6:
+        JMP ORDERING
+CALCULATE3:
 
         MOV AH,09H
         LEA DX,NL
