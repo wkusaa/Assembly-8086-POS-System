@@ -1761,6 +1761,26 @@ PRODUCTLIST:
         CALL NEWLINE
 
         MOV AH,09H
+        LEA DX,PRDN1
+        INT 21H
+        CALL NEWLINE
+
+        MOV AH,09H
+        LEA DX,PRDN2
+        INT 21H
+        CALL NEWLINE
+
+        MOV AH,09H
+        LEA DX,PRDN3
+        INT 21H
+        CALL NEWLINE
+
+        MOV AH,09H
+        LEA DX,PRDN4
+        INT 21H
+        CALL NEWLINE
+
+        MOV AH,09H
         LEA DX,ENTERANYKEY
         INT 21H
 
